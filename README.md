@@ -1,6 +1,6 @@
-# FARTtest
+# D-U-R-C
 
-A new Flutter project.
+A simple demo project to demonstrate CRUD using firebase, firestore & flutter.
 
 ## Getting Started
 
