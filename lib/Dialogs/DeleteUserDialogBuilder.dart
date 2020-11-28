@@ -1,4 +1,5 @@
 import 'package:FARTtest/Services/databaseService.dart';
+import 'package:FARTtest/Styling/styling.dart';
 import 'package:flutter/material.dart';
 import '../UIElements/FlatButtonBuilder.dart';
 import 'GeneralDialogBuilder.dart';
@@ -8,11 +9,19 @@ class DeleteUserDialogBuilder {
   final double width;
   final double height;
   final double borderRRadius;
+  final CustomStyle style;
 
-  DeleteUserDialogBuilder({@required this.docID, @required this.width, @required this.height, @required this.borderRRadius});
+  DeleteUserDialogBuilder({
+    @required this.docID,
+    @required this.width,
+    @required this.height,
+    @required this.borderRRadius,
+    @required this.style,
+  });
 
   buildDialog(BuildContext context) {
     GeneralDialogBuilder(
+      style: style,
       width: this.width,
       height: this.height - 100,
       padding: EdgeInsets.symmetric(horizontal: 15),
@@ -29,14 +38,13 @@ class DeleteUserDialogBuilder {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CustomFlatButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('NO'),
-                bordeRRadius: borderRRadius
-              ),
+                  style: style, onPressed: () => Navigator.pop(context), child: Text('NO'), bordeRRadius: borderRRadius),
               SizedBox(width: 25),
               CustomFlatButton(
+                style: style,
                 onPressed: () {
-                  DBService(dialogHeight: this.height, dialogWidth: this.width).deleteUser(ctx: context, docId: this.docID);
+                  DBService(dialogHeight: this.height, dialogWidth: this.width, style: this.style)
+                      .deleteUser(context: context, docId: this.docID);
                 },
                 child: Text('YES'),
                 bordeRRadius: borderRRadius,

@@ -6,18 +6,20 @@ class CustomFlatButton extends StatelessWidget {
   final Widget child;
   final EdgeInsets padding;
   final double bordeRRadius;
+  final CustomStyle style;
 
-  CustomFlatButton({@required this.onPressed, @required this.child, this.padding, @required this.bordeRRadius});
+  CustomFlatButton({@required this.onPressed, @required this.child, this.padding, @required this.bordeRRadius, @required this.style});
 
   @override
   Widget build(BuildContext context) {
     return FlatButton(
       onPressed: this.onPressed,
       child: this.child,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(this.bordeRRadius)),
-      color: CustomStyle().buttonColor,
-      textColor: CustomStyle().buttonTxtColor,
-      padding: this.padding ?? EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(this.style.borderRadius)),
+      color: this.style.buttonColor,
+      textColor: this.style.buttonTxtColor,
+      padding:
+          this.padding ?? EdgeInsets.symmetric(horizontal: this.style.height * 0.015, vertical: this.style.height * 0.015), //15
     );
   }
 }

@@ -6,22 +6,21 @@ import 'package:flutter/material.dart';
 
 class DBService {
   CollectionReference usrCollection = FirebaseFirestore.instance.collection('users');
-
+  final CustomStyle style;
   Stream<QuerySnapshot> getSnapshots() {
     return usrCollection.snapshots();
   }
 
-  DBService({@required this.dialogHeight, @required this.dialogWidth});
+  DBService({@required this.dialogHeight, @required this.dialogWidth, @required this.style});
 
-  CustomStyle style = CustomStyle();
+  bool emlCheck = true, nameCheck = true, phoneCheck = true;
 
 //Create record
   addUser({UserModel userObj, BuildContext context}) async {
     print('Adding user...');
-    bool emlCheck = true, nameCheck = true, phoneCheck = true;
-    emlCheck = await checkDuplicacy(field: 'email', value: userObj.email, context: context);
-    nameCheck = await checkDuplicacy(field: 'name', value: userObj.name, context: context);
-    phoneCheck = await checkDuplicacy(field: 'phone', value: userObj.phone.toString(), context: context);
+    emlCheck = await checkDuplicacy(field: 'email', value: userObj.email, context: context, source: 'addUsr');
+    nameCheck = await checkDuplicacy(field: 'name', value: userObj.name, context: context, source: 'addUsr');
+    phoneCheck = await checkDuplicacy(field: 'phone', value: userObj.phone.toString(), context: context, source: 'addUsr');
     if (emlCheck || phoneCheck || nameCheck) {
       showDialog(
           child: Dialog(
@@ -72,6 +71,7 @@ class DBService {
       }).then((value) {
         Navigator.pop(context);
         showDialog(
+          barrierDismissible: false,
           context: context,
           child: Dialog(
             child: Container(
@@ -81,15 +81,14 @@ class DBService {
               height: dialogHeight - 100,
               child: Column(
                 children: [
-                  Text('User added successfully !',
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('User added successfully !', style: style.dialogTitleTxtStyle),
                   Icon(Icons.check, color: Colors.green, size: 80),
                 ],
               ),
             ),
           ),
         );
-        Timer(Duration(seconds: 2), () {
+        Timer(Duration(milliseconds: 1500), () {
           Navigator.pop(context);
         });
       }).catchError((error) => showDialog(
@@ -113,15 +112,61 @@ class DBService {
   }
 
 //Update record
-  updateDetails({String nm, String eml, int phoneNo, String dID, BuildContext ctx}) {
-    usrCollection.doc(dID).update(
-      {'name': nm, 'email': eml, 'phone': phoneNo},
-    ).then(
-      (value) {
-        Navigator.pop(ctx);
-        Navigator.pop(ctx);
+  updateDetails({String nm, String eml, int phoneNo, String dID, BuildContext context}) async {
+    emlCheck = await checkDuplicacy(field: 'email', value: eml, context: context, source: 'updateData');
+    nameCheck = await checkDuplicacy(field: 'name', value: nm, context: context, source: 'updateData');
+    phoneCheck = await checkDuplicacy(field: 'phone', value: phoneNo.toString(), context: context, source: 'updateData');
+    if (emlCheck || phoneCheck || nameCheck) {
+      showDialog(
+          child: Dialog(
+            child: Container(
+              color: style.dialogBkgColor,
+              width: dialogWidth,
+              height: dialogHeight - 50,
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      Text('ACCOUNT ALREADY EXISTS !',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                      Divider(color: Colors.white),
+                    ],
+                  ),
+                  Text('Please try again with a different name, email or phone number or you can try again later',
+                      style: TextStyle(fontSize: 18, color: Colors.white)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      FlatButton(
+                          color: style.buttonColor,
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                          child: Text('CANCEL', style: TextStyle(color: style.buttonTxtColor))),
+                      SizedBox(width: 15),
+                      FlatButton(
+                          color: style.buttonColor,
+                          onPressed: () => Navigator.pop(context),
+                          child: Text('TRY AGAIN', style: TextStyle(color: style.buttonTxtColor))),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+          context: context);
+    } else
+      usrCollection.doc(dID).update(
+        {'name': nm, 'email': eml, 'phone': phoneNo},
+      ).then((value) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+
         showDialog(
-          context: ctx,
+          context: context,
           barrierDismissible: false,
           child: Dialog(
             child: Container(
@@ -132,31 +177,41 @@ class DBService {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Icon(Icons.check, color: Colors.green, size: 80),
-                  Text('USER DETAILS UPDATED SUCCESSFULLY !',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('USER DETAILS UPDATED SUCCESSFULLY !', textAlign: TextAlign.center, style: style.dialogTitleTxtStyle),
                 ],
               ),
             ),
           ),
         );
-        Timer(Duration(seconds: 2), () {
-          Navigator.pop(ctx);
+        Timer(Duration(milliseconds: 1500), () {
+          Navigator.pop(context);
+          // Navigator.pop(context);
         });
-      },
-    );
+      }).catchError((error) => showDialog(
+            child: Dialog(
+              child: Container(
+                child: Column(
+                  children: [
+                    Text('Something gone wrong'),
+                    Icon(Icons.close, color: Colors.red),
+                  ],
+                ),
+              ),
+            ),
+            context: context,
+          ));
   }
 
   bool dimensionsSet = false;
   double dialogWidth, dialogHeight;
 
 //Delete record
-  deleteUser({BuildContext ctx, String docId}) async {
+  deleteUser({BuildContext context, String docId}) async {
     usrCollection.doc(docId).delete().then((value) {
-      Navigator.pop(ctx);
-      Navigator.pop(ctx);
+      Navigator.pop(context);
+      Navigator.pop(context);
       showDialog(
-        context: ctx,
+        context: context,
         barrierDismissible: false,
         child: Dialog(
           child: Container(
@@ -175,7 +230,7 @@ class DBService {
         ),
       );
       Timer(Duration(seconds: 2), () {
-        Navigator.pop(ctx);
+        Navigator.pop(context);
       });
     }).catchError((error) => showDialog(
           child: Dialog(
@@ -188,16 +243,28 @@ class DBService {
               ),
             ),
           ),
-          context: ctx,
+          context: context,
         ));
   }
 
-  Future<bool> checkDuplicacy({String field, String value, @required BuildContext context}) {
+  Future<bool> checkDuplicacy(
+      {@required String field, @required String value, @required BuildContext context, @required String source}) {
     return usrCollection.where(field, isEqualTo: value).get().then((value) {
-      if (value.docs.length > 0)
-        return true;
-      else
-        return false;
+      if (source == 'addUsr') {
+        if (value.docs.length > 0)
+          return true;
+        else
+          return false;
+      } else if (source == 'updateData') {
+        if (value.docs.length > 1)
+          return true;
+        else
+          return false;
+      }
+      // if (value.docs.length > 0)
+      //   return true;
+      // else
+      //   return false;
     });
   }
 }

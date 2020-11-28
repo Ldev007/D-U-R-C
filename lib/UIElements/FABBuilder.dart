@@ -10,16 +10,24 @@ class FABBuilder extends StatefulWidget {
   final double bordeRRadius;
   final UserModel user;
   final BuildContext cont;
+  final CustomStyle style;
 
   FABBuilder(
-      {@required this.width, @required this.height, @required this.bordeRRadius, @required this.user, @required this.cont});
+      {@required this.width,
+      @required this.height,
+      @required this.bordeRRadius,
+      @required this.user,
+      @required this.cont,
+      @required this.style});
 
   @override
-  _FABBuilderState createState() => _FABBuilderState();
+  _FABBuilderState createState() => _FABBuilderState(this.style);
 }
 
 class _FABBuilderState extends State<FABBuilder> {
-  CustomStyle style = CustomStyle();
+  final CustomStyle style;
+
+  _FABBuilderState(this.style);
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +45,7 @@ class _FABBuilderState extends State<FABBuilder> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(this.widget.bordeRRadius)),
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (ctx) => SearchScreen(w: this.widget.width, h: this.widget.height)),
+              MaterialPageRoute(builder: (ctx) => SearchScreen(w: this.widget.width, h: this.widget.height, style: style)),
             ),
           ),
           FloatingActionButton.extended(
@@ -45,8 +53,9 @@ class _FABBuilderState extends State<FABBuilder> {
             heroTag: 'Bn2',
             label: Row(children: [Text('ADD USER'), SizedBox(width: 5), Icon(Icons.person_add)]),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(this.widget.bordeRRadius)),
-            onPressed: () => AddUserDialog(width: this.widget.width, height: this.widget.height, user: this.widget.user)
-                .buildDialog(this.widget.cont),
+            onPressed: () =>
+                AddUserDialog(width: this.widget.width, height: this.widget.height, user: this.widget.user, style: style)
+                    .buildDialog(this.widget.cont),
           ),
           /*
           Was meant for testing duplicacy check

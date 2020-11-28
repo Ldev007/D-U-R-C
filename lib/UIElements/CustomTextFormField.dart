@@ -8,28 +8,24 @@ class CustomTextFormField {
   final TextInputType inputType;
   final FormFieldSetter<String> onSaved;
   final int maxLen;
+  final CustomStyle style;
 
-  CustomTextFormField({this.initValue, this.labelTxt, this.inputType, this.onSaved, this.maxLen});
+  TextFormField textFormField;
 
-  buildTF(BuildContext context) {
-    return TextFormField(
+  CustomTextFormField(
+      {this.initValue,
+      @required this.labelTxt,
+      @required this.inputType,
+      @required this.onSaved,
+      this.maxLen,
+      @required this.style}) {
+    this.textFormField = TextFormField(
       onSaved: this.onSaved,
-      style: TextStyle(color: Colors.white),
+      style: style.textFieldTextStyle,
       initialValue: this.initValue,
       keyboardType: this.inputType,
       maxLength: this.maxLen == null ? null : this.maxLen,
-      decoration: InputDecoration(
-        labelText: this.labelTxt,
-        labelStyle: TextStyle(color: CustomStyle().labelTxtColor),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: CustomStyle().borderColor),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: CustomStyle().focBorderColor),
-          borderRadius: BorderRadius.circular(15),
-        ),
-      ),
+      decoration: this.style.toGetInputDecoration(labelTxt: this.labelTxt),
     );
   }
 }

@@ -6,8 +6,9 @@ class GeneralDialogBuilder {
   final double width;
   final double height;
   final EdgeInsets padding;
+  final CustomStyle style;
 
-  GeneralDialogBuilder({@required this.child, this.width, this.height, this.padding});
+  GeneralDialogBuilder({@required this.child, @required this.width, @required this.height, this.padding, @required this.style});
 
   buildDialog(BuildContext context) {
     showDialog(
@@ -16,9 +17,9 @@ class GeneralDialogBuilder {
         child: Container(
           width: this.width,
           height: this.height,
-          color: CustomStyle().dialogBkgColor,
+          color: this.style.dialogBkgColor,
           child: this.child,
-          padding: this.padding == null ? null : this.padding,
+          padding: this.padding == null ? EdgeInsets.only() : this.padding,
         ),
       ),
     );

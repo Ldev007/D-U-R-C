@@ -28,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double bordeRRadius;
   GlobalKey<ScaffoldState> scafKey = GlobalKey<ScaffoldState>();
   UserModel user = UserModel(); //USER OBJECT FOR STORING USER DATA
+  CustomStyle style;
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _initialisedOrNot = true;
       });
     } on Exception catch (e) {
+      print(e.toString());
       setState(() {
         _errorOcurredOrNot = true;
       });
@@ -53,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
     dialogWidth = MediaQuery.of(context).size.width * 0.65;
     dialogHeight = MediaQuery.of(context).size.height * 0.3;
     bordeRRadius = MediaQuery.of(context).size.height * 0.013;
+    style = CustomStyle(height: MediaQuery.of(context).size.height);
     setState(() {
       dimensionsSet = true;
     });
@@ -70,8 +73,13 @@ class _HomeScreenState extends State<HomeScreen> {
               backgroundColor: style.appBarColor,
               title: Text(widget.title, style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
             ),
-            floatingActionButton:
-                FABBuilder(width: dialogWidth, height: dialogHeight, bordeRRadius: bordeRRadius, user: user, cont: context),
+            floatingActionButton: FABBuilder(
+                width: dialogWidth,
+                height: dialogHeight,
+                bordeRRadius: bordeRRadius,
+                user: user,
+                cont: context,
+                style: this.style),
             body: _errorOcurredOrNot ? buildThisIfErrorOccurs(context) : buildThisIfNoError(context))
         : Scaffold(
             body: Center(
@@ -89,7 +97,6 @@ class _HomeScreenState extends State<HomeScreen> {
           );
   }
 
-  CustomStyle style = new CustomStyle();
   buildThisIfErrorOccurs(BuildContext context) => showDialog(
         context: context,
         child: Dialog(
@@ -107,12 +114,13 @@ class _HomeScreenState extends State<HomeScreen> {
         children: <Widget>[
           Divider(color: Colors.white),
           Expanded(
-            child: Center(
+            child: Align(
+              alignment: Alignment(-0.9, 0),
               child: Text(
                 'CURRENT USERS',
                 style: TextStyle(
                   color: style.mainTxtColor,
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -122,10 +130,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             flex: 15,
             child: StreamBuilder<QuerySnapshot>(
-                stream: DBService(dialogHeight: dialogHeight, dialogWidth: dialogWidth).getSnapshots(),
+                stream: DBService(dialogHeight: dialogHeight, dialogWidth: dialogWidth, style: null).getSnapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError)
                     GeneralDialogBuilder(
+                      style: style,
                       width: MediaQuery.of(context).size.width * 0.85,
                       height: MediaQuery.of(context).size.height * 0.45,
                       child: Column(
@@ -155,23 +164,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (snapshot.hasData)
                     return Container(
                       child: ListView.separated(
+                        padding: EdgeInsets.only(left: 15),
                         shrinkWrap: true,
                         itemCount: snapshot.data.size == null ? 0 : snapshot.data.size,
                         itemBuilder: (context, index) => ListTile(
                           title: Text(snapshot.data.docs[index]['name'], style: TextStyle(color: style.mainTxtColor)),
                           subtitle: Text(snapshot.data.docs[index]['email'], style: TextStyle(color: style.mainTxtColor)),
                           onTap: () => GeneralDialogBuilder(
+                            style: style,
                             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 25),
                             width: dialogWidth,
                             height: dialogHeight,
                             child: Column(
                               children: [
-                                Text('WHAT WOULD YOU LIKE TO DO ?',
-                                    style: TextStyle(
-                                      color: style.dialogTitleTxtColor,
-                                      fontSize: MediaQuery.of(context).size.height * 0.02,
-                                      // fontWeight: FontWeight.bold,
-                                    )),
+                                Text('WHAT WOULD YOU LIKE TO DO ?', style: style.dialogTitleTxtStyle),
                                 Divider(color: Colors.white),
                                 Expanded(
                                   flex: 3,
@@ -179,34 +185,38 @@ class _HomeScreenState extends State<HomeScreen> {
                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
                                       CustomFlatButton(
+                                        style: style,
                                         padding: EdgeInsets.symmetric(
                                             horizontal: MediaQuery.of(context).size.width * 0.05,
                                             vertical: MediaQuery.of(context).size.height * 0.025),
                                         onPressed: () {
                                           UpdateUserDataDialog(
-                                          borderRRadius: bordeRRadius,
-                                          name: snapshot.data.docs[index]['name'],
-                                          email: snapshot.data.docs[index]['email'],
-                                          phone: snapshot.data.docs[index]['phone'].toString(),
-                                          docID: snapshot.data.docs[index].id,
-                                          width: dialogWidth,
-                                          height: dialogHeight,
-                                        ).buildDialog(context);
-                                        // Navigator.pop(context);
+                                            borderRRadius: bordeRRadius,
+                                            name: snapshot.data.docs[index]['name'],
+                                            email: snapshot.data.docs[index]['email'],
+                                            phone: snapshot.data.docs[index]['phone'].toString(),
+                                            docID: snapshot.data.docs[index].id,
+                                            width: dialogWidth,
+                                            height: dialogHeight,
+                                            style: style,
+                                          ).buildDialog(scafKey.currentContext);
+                                          // Navigator.pop(context);
                                         },
                                         child: Text('UPDATE USER DETAILS'),
                                         bordeRRadius: bordeRRadius,
                                       ),
                                       CustomFlatButton(
+                                        style: style,
                                         padding: EdgeInsets.symmetric(
                                             horizontal: MediaQuery.of(context).size.width * 0.085,
                                             vertical: MediaQuery.of(context).size.height * 0.025),
                                         onPressed: () => DeleteUserDialogBuilder(
-                                                docID: snapshot.data.docs[index].id,
-                                                width: dialogWidth,
-                                                height: dialogHeight,
-                                                borderRRadius: bordeRRadius)
-                                            .buildDialog(context),
+                                          docID: snapshot.data.docs[index].id,
+                                          width: dialogWidth,
+                                          height: dialogHeight,
+                                          borderRRadius: bordeRRadius,
+                                          style: style,
+                                        ).buildDialog(scafKey.currentContext),
                                         child: Text('DELETE THE USER'),
                                         bordeRRadius: bordeRRadius,
                                       ),

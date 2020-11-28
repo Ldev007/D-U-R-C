@@ -7,10 +7,11 @@ import 'package:flutter/material.dart';
 class SearchScreen extends StatefulWidget {
   final double w;
   final double h;
-  SearchScreen({@required this.w, @required this.h});
+  final CustomStyle style;
+  SearchScreen({@required this.w, @required this.h, @required this.style});
 
   @override
-  _SearchScreenState createState() => _SearchScreenState();
+  _SearchScreenState createState() => _SearchScreenState(dialogH: h, dialogW: w, style: style);
 }
 
 class _SearchScreenState extends State<SearchScreen> {
@@ -32,9 +33,9 @@ class _SearchScreenState extends State<SearchScreen> {
   String hintTxt = 'First choose a filter !';
   bool tfEnabledOrNot = false;
 
-  _SearchScreenState({this.dialogW, this.dialogH});
+  _SearchScreenState({@required this.dialogW, @required this.dialogH, @required this.style});
 
-  CustomStyle style = CustomStyle();
+  final CustomStyle style;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ? Expanded(
                           flex: 12,
                           child: StreamBuilder<QuerySnapshot>(
-                            stream: DBService(dialogWidth: dialogW, dialogHeight: dialogH)
+                            stream: DBService(dialogWidth: dialogW, dialogHeight: dialogH, style: null)
                                 .searchResults(filterType: selectedVal, value: srchString),
                             builder: (context, snapshot) {
                               if (snapshot.hasError)
@@ -63,10 +64,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                     child: Container(
                                       child: Column(
                                         children: [
-                                          Text(
-                                            'Something went wrong couldn\'t initalise the app',
-                                            style: TextStyle(color: style.dialogTitleTxtColor),
-                                          ),
+                                          Text('Something went wrong couldn\'t initalise the app',
+                                              style: style.dialogTitleTxtStyle),
                                           Icon(Icons.warning, color: Colors.red)
                                         ],
                                       ),

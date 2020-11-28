@@ -15,6 +15,7 @@ class UpdateUserDataDialog {
   final double width;
   final double height;
   final double borderRRadius;
+  final CustomStyle style;
 
   UpdateUserDataDialog({
     @required this.docID,
@@ -24,6 +25,7 @@ class UpdateUserDataDialog {
     @required this.width,
     @required this.height,
     @required this.borderRRadius,
+    @required this.style,
   });
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -31,12 +33,12 @@ class UpdateUserDataDialog {
 
   buildDialog(BuildContext context) {
     InputDialogBuilder(
+      style: style,
       formKey: formKey,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Text('UPDATE USER DATA',
-              style: TextStyle(color: CustomStyle().dialogTitleTxtColor, fontSize: 20, fontWeight: FontWeight.bold)),
+          Text('UPDATE USER DATA', style: style.dialogTitleTxtStyle),
           Divider(color: Colors.white),
           CustomTextFormField(
             onSaved: (value) {
@@ -46,7 +48,8 @@ class UpdateUserDataDialog {
             initValue: this.name,
             inputType: TextInputType.name,
             labelTxt: 'Name',
-          ).buildTF(context),
+            style: style,
+          ).textFormField,
           CustomTextFormField(
             onSaved: (value) {
               return EmailValidator.validate(value) ? user.email = value : 'Enter a valid email';
@@ -54,7 +57,8 @@ class UpdateUserDataDialog {
             initValue: this.email,
             inputType: TextInputType.emailAddress,
             labelTxt: 'Email',
-          ).buildTF(context),
+            style: style,
+          ).textFormField,
           CustomTextFormField(
             onSaved: (value) {
               print('phone : $value');
@@ -64,20 +68,23 @@ class UpdateUserDataDialog {
             maxLen: 10,
             labelTxt: 'Phone',
             inputType: TextInputType.number,
-          ).buildTF(context),
+            style: style,
+          ).textFormField,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              CustomFlatButton(onPressed: () => Navigator.pop(context), child: Text('CANCEL'), bordeRRadius: this.borderRRadius),
+              CustomFlatButton(
+                  style: style, onPressed: () => Navigator.pop(context), child: Text('CANCEL'), bordeRRadius: this.borderRRadius),
               SizedBox(width: MediaQuery.of(context).size.height * 0.01),
               CustomFlatButton(
+                style: style,
                   bordeRRadius: this.borderRRadius,
                   onPressed: () {
                     formKey.currentState.save();
 
                     if (user.name != null || user.email != null || user.phone != null) {
-                      DBService(dialogHeight: this.height, dialogWidth: this.width)
-                          .updateDetails(nm: user.name, eml: user.email, phoneNo: user.phone, dID: this.docID, ctx: context);
+                      DBService(dialogHeight: this.height, dialogWidth: this.width, style: this.style)
+                          .updateDetails(nm: user.name, eml: user.email, phoneNo: user.phone, dID: this.docID, context: context);
                     } else
                       showDialog(
                         context: context,
@@ -88,9 +95,7 @@ class UpdateUserDataDialog {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.error, color: Colors.red, size: 80),
-                              Text('Enter all the values and try again !',
-                                  style: TextStyle(
-                                      color: CustomStyle().dialogTitleTxtColor, fontSize: 18, fontWeight: FontWeight.bold)),
+                              Text('Enter all the values and try again !', style: style.dialogTitleTxtStyle),
                             ],
                           ),
                         ),

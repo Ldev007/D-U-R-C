@@ -12,48 +12,61 @@ class AddUserDialog {
   final double width;
   final double height;
   final UserModel user;
+  final CustomStyle style;
 
-  AddUserDialog({@required this.width, @required this.height, @required this.user});
+  AddUserDialog({
+    @required this.width,
+    @required this.height,
+    @required this.user,
+    @required this.style,
+  });
 
   GlobalKey<FormState> _addUserformKey = GlobalKey<FormState>();
 
+  List<TextInputType> keyType = [TextInputType.name, TextInputType.emailAddress, TextInputType.phone];
+
   buildDialog(BuildContext context) {
     InputDialogBuilder(
+      style: style,
       formKey: _addUserformKey,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Text(
             'ADD A USER',
-            style: TextStyle(fontSize: 20, color: CustomStyle().dialogTitleTxtColor, fontWeight: FontWeight.bold),
+            style: style.dialogTitleTxtStyle,
           ),
           Divider(color: Colors.white),
           CustomTextFormField(
-            inputType: TextInputType.name,
+            inputType: keyType[0],
             onSaved: (value) {
               return value == null ? 'This field is compulsary' : this.user.name = value;
             },
+            style: style,
             labelTxt: 'Enter Full Name',
-          ).buildTF(context),
+          ).textFormField,
           CustomTextFormField(
-            inputType: TextInputType.emailAddress,
+            style: style,
+            inputType: keyType[1],
             onSaved: (value) {
               return EmailValidator.validate(value) ? this.user.email = value : 'Enter a valid email';
             },
             labelTxt: 'Enter Email',
-          ).buildTF(context),
+          ).textFormField,
           CustomTextFormField(
             onSaved: (value) {
               return value == null ? 'This field is compulsary' : this.user.phone = int.parse(value);
             },
             maxLen: 10,
-            inputType: TextInputType.number,
+            inputType: keyType[2],
             labelTxt: 'Enter Phone Number',
-          ).buildTF(context),
+            style: style,
+          ).textFormField,
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               CustomFlatButton(
+                  style: style,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -61,9 +74,11 @@ class AddUserDialog {
                   bordeRRadius: 10),
               SizedBox(width: 15),
               CustomFlatButton(
+                  style: style,
                   onPressed: () {
                     _addUserformKey.currentState.save();
-                    DBService(dialogHeight: this.height, dialogWidth: this.width).addUser(userObj: this.user, context: context);
+                    DBService(dialogHeight: this.height, dialogWidth: this.width, style: style)
+                        .addUser(userObj: this.user, context: context);
                   },
                   child: Text('ADD USER'),
                   bordeRRadius: 10),
@@ -74,13 +89,13 @@ class AddUserDialog {
     ).buildDialog(context);
   }
 
-  custFB({@required void onPressed(), @required Widget child, EdgeInsets padding, double bordeRRadius}) {
-    return FlatButton(
-      onPressed: onPressed,
-      child: child,
-      color: CustomStyle().buttonColor,
-      textColor: CustomStyle().buttonTxtColor,
-      padding: padding ?? EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-    );
-  }
+  // custFB({@required void onPressed(), @required Widget child, EdgeInsets padding, double bordeRRadius}) {
+  //   return FlatButton(
+  //     onPressed: onPressed,
+  //     child: child,
+  //     color: CustomStyle().buttonColor,
+  //     textColor: CustomStyle().buttonTxtColor,
+  //     padding: padding ?? EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+  //   );
+  // }
 }

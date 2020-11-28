@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 class InputDialogBuilder {
   final GlobalKey<FormState> formKey;
   final Widget child;
+  final CustomStyle style;
 
-  InputDialogBuilder({this.formKey, this.child});
+  InputDialogBuilder({@required this.formKey, @required this.child, @required this.style});
 
   buildDialog(BuildContext context) {
     showDialog(
@@ -14,7 +15,7 @@ class InputDialogBuilder {
         child: Container(
           height: MediaQuery.of(context).size.height * 0.4,
           padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-          color: CustomStyle().dialogBkgColor,
+          color: style.dialogBkgColor,
           child: Form(
             key: this.formKey,
             child: this.child,
